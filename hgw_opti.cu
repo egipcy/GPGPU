@@ -38,7 +38,7 @@ void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
 	cudaMalloc(&data_write, sizeof(size_t) * height * width);
 	cudaMemcpy(data_read, data_host, sizeof(size_t) * width * height, cudaMemcpyHostToDevice);
 
-	int bsize = 10;
+	int bsize = 1;
 	int w = std::ceil((float)width / bsize);
 	int h = std::ceil((float)height / bsize);
 
@@ -46,7 +46,7 @@ void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
 	dim3 dimGrid(w, h);
 
 	printf("BEFORE\n");
-	print_cuda<<<dimGrid, dimBlock>>>(data_read, height, width);
+	print_cuda<<<height, 1>>>(data_read, height, width);
 	cudaDeviceSynchronize();
 	printf("AFTER\n");
 }
