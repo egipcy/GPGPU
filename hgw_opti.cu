@@ -12,12 +12,12 @@
 __global__ void print_cuda(size_t* data, int height, int width) {
 	int x = blockDim.x * blockIdx.x + threadIdx.x;
 	int y = blockDim.y * blockIdx.y + threadIdx.y;
-
+	printf("%i, %i\n", x, y);
 	if (x >= width || y >= height) {
 		return;
 	}
 
-	printf("%i, %i, %lu\n", x, y, data[x+y*width]);
+
 }
 
 void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
