@@ -46,17 +46,17 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
 	size_t* h_line = h+index*width;
 	size_t* v_line = data_write+index*width;
 	
+	// Compute G
 	for (int x = 0; x < m; x++) {
-	  // Compute G
       g_line[x] = (x % k) == 0 ? curr_line[x] : compare(g_line[x - 1], curr_line[x], is_dilatation);
-      // Compute H
-      int x_rev = m - x - 1;
-      if (x_rev == m-1) {
-      	h_line[x_rev] = curr_line[x_rev];
-      } else {
-      	h_line[x] = (x_rev + 1) % k == 0 ? curr_line[x_rev] : compare(h_line[x_rev + 1], curr_line[x_rev], is_dilatation);
-      }
 	}
+
+	h_line[m - 1] = curr_line[m - 1];
+    for (size_t y = 1; y < m; y++)
+    {
+      size_t x = m - 1 - y;
+      h_line[x] = (x + 1) % k == 0 ? curr_line[x] : extremum(h_line[x + 1], v_line[x], is_dilatation);
+    }
 
     // Compute new line 
     for (size_t x = 0; x < m; x++)
@@ -64,7 +64,7 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
       if (2*x < k)
         v_line[x] = g_line[x + k/2];
       else if (x + k/2 >= m)
-        v_line[x] = x + k/2 < m + psa ? compare(g_line[m - 1], h_line[x - k/2], is_dilatation) : h_line[x - k/2];
+        v_line[x] = (x + (k/2)) < (m + psa) ? compare(g_line[m - 1], h_line[x - (k/2)], is_dilatation) : h_line[x - (k/2)];
       else
         v_line[x] = compare(g_line[x + k/2], h_line[x - k/2], is_dilatation);
     }
