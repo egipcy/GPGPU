@@ -20,7 +20,7 @@ __global__ void print_cuda(size_t* data, int height, int width) {
 }
 
 
-__global__ void print_cuda(size_t* data, int height, int width) {
+__global__ void compute_vHGW(size_t* data, int height, int width) {
 	int x = blockDim.x * blockIdx.x + threadIdx.x;
 	int y = blockDim.y * blockIdx.y + threadIdx.y;
 
