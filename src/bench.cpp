@@ -2,31 +2,39 @@
 #include <vector>
 #include <benchmark/benchmark.h>
 
-constexpr int kRGBASize = 4;
-constexpr int width = 4800;
-constexpr int height = 3200;
-constexpr int niteration = 1000;
-
-void BM_Rendering_cpu(benchmark::State& st)
+static void BM_Rendering_CPU_image_load_write(benchmark::State& state)
 {
-  int stride = width * kRGBASize;
-  std::vector<char> data(height * stride);
-
-  for (auto _ : st)
-    render_cpu(data.data(), width, height, stride, niteration);
-
-  st.counters["frame_rate"] = benchmark::Counter(st.iterations(), benchmark::Counter::kIsRate);
+  for (auto _ : state)
+  {
+    auto image = PGM("house.pgm");
+    image.write("house.pgm");
+  }
 }
 
-void BM_Rendering_gpu(benchmark::State& st)
+static void BM_Rendering_CPU_dilate(benchmark::State& state)
 {
-  int stride = width * kRGBASize;
-  std::vector<char> data(height * stride);
+  size_t i = 0;
+  for (auto _ : state)
+  {
+    size_t k = state.range(i++);
 
-  //for (auto _ : st)
-    //render(data.data(), width, height, stride, niteration);
+    auto image = PGM("house.pgm");
+    dilate_vHGW(image, k);
+    image.write("house.dilated.vHGW.pgm");
+  }
+}
 
-  st.counters["frame_rate"] = benchmark::Counter(st.iterations(), benchmark::Counter::kIsRate);
+static void BM_Rendering_CPU_erode(benchmark::State& state)
+{
+  size_t i = 0;
+  for (auto _ : state)
+  {
+    size_t k = state.range(i++);
+
+    auto image = PGM("house.pgm");
+    erode_vHGW(image, k);
+    image.write("house.eroded.vHGW.pgm");
+  }
 }
 
 BENCHMARK(BM_Rendering_cpu)
