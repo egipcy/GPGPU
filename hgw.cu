@@ -34,7 +34,7 @@ __global__ void compute_v(size_t* v, size_t* g, size_t* h, size_t k, size_t psa,
   }
 }
 
-void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extremum)(const size_t&, const size_t&))
+void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extremum)(size_t&, size_t&))
 {
   // http://www.cmm.mines-paristech.fr/~beucher/publi/HGWimproved.pdf - Algorithm 1
 
