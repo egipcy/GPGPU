@@ -9,6 +9,9 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#define max(a,b) a>b?a:b
+
+
 __global__ void print_cuda(size_t* data, int height, int width) {
 	int x = blockDim.x * blockIdx.x + threadIdx.x;
 	int y = blockDim.y * blockIdx.y + threadIdx.y;
@@ -37,7 +40,7 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
 
 	// Compute G
 	for (int x = 0; x < m; x++) {
-      g_line[x] = (x % k) == 0 ? curr_line[x] : std::max(g_line[x - 1], curr_line[x]);
+      g_line[x] = (x % k) == 0 ? curr_line[x] : max(g_line[x - 1], curr_line[x]);
 	}
 
 
@@ -45,7 +48,7 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
   	h_line[m - 1] = curr_line[m - 1];
     for (int y = 1; y < m; y++) {
       size_t x = m - 1 - y;
-      h_line[x] = (x + 1) % k == 0 ? curr_line[x] : std::max(h_line[x + 1], curr_line[x]);
+      h_line[x] = (x + 1) % k == 0 ? curr_line[x] : max(h_line[x + 1], curr_line[x]);
     }
 
 
@@ -55,9 +58,9 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
       if (2*x < k)
         v_line[x] = g_line[x + k/2];
       else if (x + k/2 >= m)
-        v_line[x] = x + k/2 < m + psa ? std::max(g_line[m - 1], h_line[x - k/2]) : h_line[x - k/2];
+        v_line[x] = x + k/2 < m + psa ? max(g_line[m - 1], h_line[x - k/2]) : h_line[x - k/2];
       else
-        v_line[x] = std::max(g_line[x + k/2], h_line[x - k/2]);
+        v_line[x] = max(g_line[x + k/2], h_line[x - k/2]);
     }
 
 }
