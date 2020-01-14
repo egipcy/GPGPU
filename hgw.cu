@@ -26,11 +26,11 @@ __global__ void compute_v(size_t* v, size_t* g, size_t* h, size_t k, size_t psa,
 
   if (tid < n) {
     if (2*tid < k)
-      *(v[tid]) = g[tid + k/2];
+      v[tid] = g[tid + k/2];
     else if (tid + k/2 >= n)
-      *(v[tid]) = tid + k/2 < n + psa ? extremum(g[n - 1], h[tid - k/2]) : h[tid - k/2];
+      v[tid] = tid + k/2 < n + psa ? extremum(g[n - 1], h[tid - k/2]) : h[tid - k/2];
     else
-      *(v[tid]) = extremum(g[tid + k/2], h[tid - k/2]);
+      v[tid] = extremum(g[tid + k/2], h[tid - k/2]);
   }
 }
 
