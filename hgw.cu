@@ -2,7 +2,7 @@
 
 #define BLOCK_SIZE 256
 
-__global__ void compute_g(size_t& g, size_t& v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&)) {
+__global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&)) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
