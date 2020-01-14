@@ -84,6 +84,38 @@ static void BM_Rendering_CPU_erode_vhgw(benchmark::State& state)
   }
 }
 
+// ------------------------------------ GPU ------------------------------------
+
+static void BM_Rendering_GPU_dilate_naive(benchmark::State& state)
+{
+  size_t i = 0;
+  for (auto _ : state)
+  {
+    size_t k = state.range(i++);
+    
+    auto kernel = std::vector<bool>(k * k, true);
+
+    auto image = PGM("house.pgm");
+    apply_2D(image.get_datas().data(), kernel.data(), k, k, image.get_width(), image.get_height(), true)
+    image.write("house.dilated.naive.gpu.pgm");
+  }
+}
+
+static void BM_Rendering_GPU_erode_naive(benchmark::State& state)
+{
+  size_t i = 0;
+  for (auto _ : state)
+  {
+    size_t k = state.range(i++);
+    
+    auto kernel = std::vector<bool>(k * k, true);
+
+    auto image = PGM("house.pgm");
+    apply_2D(image.get_datas().data(), kernel.data(), k, k, image.get_width(), image.get_height(), false)
+    image.write("house.eroded.naive.gpu.pgm");
+  }
+}
+
 BENCHMARK(BM_Rendering_cpu)
 ->Unit(benchmark::kMillisecond)
 ->UseRealTime();
