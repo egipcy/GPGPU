@@ -14,9 +14,9 @@ void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
 	size_t* data_read;
 	size_t* data_write;
 
-	cudaMalloc(&data_reqd, sizeof(size_t) * height * width);
+	cudaMalloc(&data_read, sizeof(size_t) * height * width);
 	cudaMalloc(&data_write, sizeof(size_t) * height * width);
-	cudaMemcpy(data_reqd, data_host, sizeof(size_t) * width * height, cudaMemcpyHostToDevice);
+	cudaMemcpy(data_read, data_host, sizeof(size_t) * width * height, cudaMemcpyHostToDevice);
 }
 
 
