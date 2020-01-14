@@ -11,7 +11,54 @@ static void BM_Rendering_CPU_image_load_write(benchmark::State& state)
   }
 }
 
-static void BM_Rendering_CPU_dilate(benchmark::State& state)
+static void BM_Rendering_CPU_kernel(benchmark::State& state)
+{
+  size_t i = 0;
+  for (auto _ : state)
+  {
+    size_t k = state.range(i++);
+    
+    std::vector<std::vector<bool>> kernel = std::vector<std::vector<bool>>(k);
+    for (size_t j = 0; j < kernel.size(); j++)
+      kernel[j] = std::vector<bool>(k, true);
+  }
+}
+
+static void BM_Rendering_CPU_dilate_naive(benchmark::State& state)
+{
+  size_t i = 0;
+  for (auto _ : state)
+  {
+    size_t k = state.range(i++);
+    
+    std::vector<std::vector<bool>> kernel = std::vector<std::vector<bool>>(k);
+    for (size_t j = 0; j < kernel.size(); j++)
+      kernel[j] = std::vector<bool>(k, true);
+
+    auto image = PGM("house.pgm");
+    naive_approach(image, kernel, max);
+    image.write("house.dilated.naive.pgm");
+  }
+}
+
+static void BM_Rendering_CPU_erode_naive(benchmark::State& state)
+{
+  size_t i = 0;
+  for (auto _ : state)
+  {
+    size_t k = state.range(i++);
+    
+    std::vector<std::vector<bool>> kernel = std::vector<std::vector<bool>>(k);
+    for (size_t j = 0; j < kernel.size(); j++)
+      kernel[j] = std::vector<bool>(k, true);
+
+    auto image = PGM("house.pgm");
+    naive_approach(image, kernel, min);
+    image.write("house.eroded.naive.pgm");
+  }
+}
+
+static void BM_Rendering_CPU_dilate_vhgw(benchmark::State& state)
 {
   size_t i = 0;
   for (auto _ : state)
@@ -24,7 +71,7 @@ static void BM_Rendering_CPU_dilate(benchmark::State& state)
   }
 }
 
-static void BM_Rendering_CPU_erode(benchmark::State& state)
+static void BM_Rendering_CPU_erode_vhgw(benchmark::State& state)
 {
   size_t i = 0;
   for (auto _ : state)
