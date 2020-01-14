@@ -14,11 +14,13 @@ void cuda_vHGW_opti(size_t** data_host, int height, int width, int p) {
 	size_t** data;
 
 	cudaMalloc(&data, sizeof(size_t*) * height);
-
+	printf("PASSED\n");
 	for (int i = 0; i < height; i++) {
 		cudaMalloc(&data[i], sizeof(size_t) * width);
+		printf("PASSED For\n");
 		cudaMemcpy(data[i], data_host[i], sizeof(size_t) * width, cudaMemcpyHostToDevice);
 	}
+	printf("PASSED2\n");
 
 
 
