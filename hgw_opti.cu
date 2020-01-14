@@ -12,6 +12,7 @@
 __global__ void print_cuda(size_t* data, int height, int width) {
 	int x = blockDim.x * blockIdx.x + threadIdx.x;
 	int y = blockDim.y * blockIdx.y + threadIdx.y;
+	printf("%i %i\n", x, y)
 	printf("%i, %i\n", x, y);
 	if (x >= width || y >= height) {
 		return;
