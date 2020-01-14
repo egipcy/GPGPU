@@ -128,6 +128,15 @@ int main() {
 	size_t k = 3;
 
 	cuda_vHGW(data, height, width, k);
+
+
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+			printf("%lu ", data[j+i*width]);
+		}
+		printf("\n");
+	}
+	
 	return 0;
 
 }
