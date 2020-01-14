@@ -9,7 +9,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-__global__ void print(size_t* data, int height, int width) {
+__global__ void print_cuda(size_t* data, int height, int width) {
 	int x = blockDim.x * blockIdx.x + threadIdx.x;
 	int y = blockDim.y * blockIdx.y + threadIdx.y;
 
@@ -35,7 +35,9 @@ void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
 	dim3 dimBlock(bsize, bsize);
 	dim3 dimGrid(w, h);
 
-	print<<<dimGrid, dimBlock>>>(data_read, height, width);
+	printf("BEFORE\n");
+	print_cuda<<<dimGrid, dimBlock>>>(data_read, height, width);
+	printf("AFTER\n");
 }
 
 
