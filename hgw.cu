@@ -2,6 +2,14 @@
 
 #define BLOCK_SIZE 256
 
+__global__ void example(size_t* g, int n) {
+  auto tid = blockIdx.x * blockDim.x + threadIdx.x;
+
+  if (tid < n) {
+    std::cout << g[i] << std::endl;
+  }
+}
+
 __global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&)) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -54,9 +62,12 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
     cudaMalloc((void**)&d_v, sizeof(size_t*) * m);
 
     // Transfer data from host to device memory
-    cudaMemcpy(d_g, &(g[0]), sizeof(size_t) * m, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_h, &(h[0]), sizeof(size_t) * m, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_v, &(v[0]), sizeof(size_t*) * m, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_g, g.data(), sizeof(size_t) * m, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_h, h.data(), sizeof(size_t) * m, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_v, v.data(), sizeof(size_t*) * m, cudaMemcpyHostToDevice);
+
+    example(d_g, m);
+
 
     // Executing kernel 
     int block_size = BLOCK_SIZE;
@@ -67,7 +78,7 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
     compute_v<<<grid_size,block_size>>>(d_v, d_g, d_h, k, psa, m, extremum);
 
     // Transfer data back to host memory
-    cudaMemcpy(&(v[0]), d_v, sizeof(size_t) * m, cudaMemcpyDeviceToHost);
+    cudaMemcpy(v, d_v, sizeof(size_t *) * m, cudaMemcpyDeviceToHost);
 
     // Deallocate device memory
     cudaFree(d_g);
