@@ -20,35 +20,84 @@ __global__ void print_cuda(size_t* data, int height, int width) {
 }
 
 
-__global__ void compute_vHGW(size_t* data, int height, int width) {
-	int x = blockDim.x * blockIdx.x + threadIdx.x;
-	int y = blockDim.y * blockIdx.y + threadIdx.y;
+__global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, int width, size_t* g, size_t* h, size_t k) {
+	int index = blockDim.x * blockIdx.x + threadIdx.x;
 
-	if (x >= width || y >= height) {
+	auto m = width;
+	auto psa = (k - (m - 1) % k) - 1;
+
+	if (index >= width)
 		return;
+
+	size_t* curr_line = data_read+index*width;
+	size_t* g_line = g+index*width;
+	size_t* h_line = h+index*width;
+	size_t* v_line = data_write+index*width;
+/*
+
+	// Compute G
+	for (int x = 0; x < m; x++) {
+      g_line[x] = (x % k) == 0 ? curr_line[x] : std::max(g_line[x - 1], curr_line[x]);
 	}
-	printf("%i, %i --> %lu\n", x, y, data[x+y*width]);
+
+
+  	// Compute H
+  	h_line[m - 1] = curr_line[m - 1];
+    for (int y = 1; y < m; y++) {
+      size_t x = m - 1 - y;
+      h_line[x] = (x + 1) % k == 0 ? curr_line[x] : std::max(h_line[x + 1], curr_line[x]);
+    }
+
+
+    // Compute new line 
+    for (size_t x = 0; x < m; x++)
+    {
+      if (2*x < k)
+        *(v_line[x]) = g[x + k/2];
+      else if (x + k/2 >= m)
+        *(v_line[x]) = x + k/2 < m + psa ? std::max(g_line[m - 1], h_line[x - k/2]) : h_line[x - k/2];
+      else
+        *(v_line[x]) = std::max(g_line[x + k/2], h_line[x - k/2]);
+    }*/
+
 }
 
-void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
+void cuda_vHGW(size_t* data_host, int height, int width, size_t k) {
 	size_t* data_read;
 	size_t* data_write;
+	size_t* h;
+	size_t* g;
 
+	// Allocate device memory 
 	cudaMalloc(&data_read, sizeof(size_t) * height * width);
 	cudaMalloc(&data_write, sizeof(size_t) * height * width);
+	cudaMalloc(&g, sizeof(size_t) * height * width);
+	cudaMalloc(&h, sizeof(size_t) * height * width);
+
+	// Transfer data from host to device memory
 	cudaMemcpy(data_read, data_host, sizeof(size_t) * width * height, cudaMemcpyHostToDevice);
 
 	int bsize = 1;
 	int w = std::ceil((float)width / bsize);
 	int h = std::ceil((float)height / bsize);
 
-	dim3 dimBlock(bsize, bsize);
-	dim3 dimGrid(w, h);
+	// Executing kernel 
+	//dim3 dimBlock(bsize, bsize);
+	//dim3 dimGrid(w, h);
 
 	printf("BEFORE\n");
-	print_cuda<<<height, 1>>>(data_read, height, width);
+	compute_vHGW<<<height, 1>>>(data_read, data_write, height, width, g, h, k);
 	cudaDeviceSynchronize();
 	printf("AFTER\n");
+
+	// Transfer data back to host memory
+	cudaMemcpy(data_host, data_write, sizeof(size_t) * width * height, cudaMemcpyDeviceToHost);
+
+	// Deallocate device memory
+    cudaFree(data_read);
+    cudaFree(data_write);
+    cudaFree(h);
+    cudaFree(g);
 }
 
 
@@ -57,7 +106,6 @@ int main() {
 
 	int height = 10;
 	int width  = 10;
-	int p = 3;
 
 	data = (size_t*)malloc(sizeof(size_t) * height*width);
 
