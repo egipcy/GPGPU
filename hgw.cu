@@ -49,14 +49,14 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
     std::vector<size_t> h(m);
 
     // Allocate device memory 
-    cudaMalloc((size_t**)&d_g, sizeof(size_t) * m);
-    cudaMalloc((size_t**)&d_h, sizeof(size_t) * m);
-    cudaMalloc((size_t**)&d_v, sizeof(size_t) * m);
+    cudaMalloc((void**)&d_g, sizeof(size_t) * m);
+    cudaMalloc((void**)&d_h, sizeof(size_t) * m);
+    cudaMalloc((void**)&d_v, sizeof(size_t) * m);
 
     // Transfer data from host to device memory
-    cudaMemcpy(d_g, g, sizeof(size_t) * m, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_h, h, sizeof(size_t) * m, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_v, v, sizeof(size_t) * m, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_g, &(g[0]), sizeof(size_t) * m, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_h, &(h[0]), sizeof(size_t) * m, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_v, &(v[0]), sizeof(size_t) * m, cudaMemcpyHostToDevice);
 
     // Executing kernel 
     int block_size = BLOCK_SIZE;
@@ -67,7 +67,7 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
     compute_v<<<grid_size,block_size>>>(d_v, d_g, d_h, k, psa, m, extremum);
 
     // Transfer data back to host memory
-    cudaMemcpy(v, d_v, sizeof(size_t) * m, cudaMemcpyDeviceToHost);
+    cudaMemcpy(&(v[0]), d_v, sizeof(size_t) * m, cudaMemcpyDeviceToHost);
 
     // Deallocate device memory
     cudaFree(d_g);
