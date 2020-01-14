@@ -1,45 +1,41 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <assert.h>
-#include <cuda.h>
-#include <cuda_runtime.h>
+
+#include hgw.hh
 
 #define BLOCK_SIZE 256
 
-__global__ void compute_g(size_t* g, size_t* v, size_t k, int n) {
+__global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
-    g[tid] = (tid % k) == 0 ? v[x] : std::max(g[tid - 1], v[tid]);
+    g[tid] = (tid % k) == 0 ? v[x] : extremum(g[tid - 1], v[tid]);
   }
 
 }
 
-__global__ void compute_h(float* h, size_t* v, size_t k, int n) {
+__global__ void compute_h(float* h, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   h[n - 1] = v[n - 1];
   if (tid < n) {
     size_t i = n - 1 - tid;
-    h[i] = (i + 1) % k == 0 ? v[i] : std::max(h[i + 1], v[i]);
+    h[i] = (i + 1) % k == 0 ? v[i] : extremum(h[i + 1], v[i]);
   }
 }
 
-__global__ void compute_v(size_t* v, size_t* g, size_t* h, size_t k, auto psa, int n) {
+__global__ void compute_v(size_t* v, size_t* g, size_t* h, size_t k, auto psa, int n, size_t(*extremum)(const size_t&, const size_t&) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
     if (2*tid < k)
       v[tid] = g[tid + k/2];
     else if (tid + k/2 >= n)
-      v[tid] = tid + k/2 < n + psa ? std::max(g[n - 1], h[tid - k/2]) : h[tid - k/2];
+      v[tid] = tid + k/2 < n + psa ? extremum(g[n - 1], h[tid - k/2]) : h[tid - k/2];
     else
       v[tid] = std::max(g[tid + k/2], h[tid - k/2]);
   }
 }
 
-std::vector<std::vector<size_t>> vHGW(std::vector<std::vector<size_t>> matrix, size_t k)
+void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extremum)(const size_t&, const size_t&))
 {
   // http://www.cmm.mines-paristech.fr/~beucher/publi/HGWimproved.pdf - Algorithm 1
 
@@ -66,9 +62,9 @@ std::vector<std::vector<size_t>> vHGW(std::vector<std::vector<size_t>> matrix, s
     int block_size = BLOCK_SIZE;
     int grid_size = ((m + block_size) / block_size);
 
-    compute_g<<<grid_size,block_size>>>(d_g, d_v, k, m);
-    compute_h<<<grid_size,block_size>>>(d_h, d_v, k, m);
-    compute_v<<<grid_size,block_size>>>(d_v, d_g, d_h, k, psa, m);
+    compute_g<<<grid_size,block_size>>>(d_g, d_v, k, m, extremum);
+    compute_h<<<grid_size,block_size>>>(d_h, d_v, k, m, extremum);
+    compute_v<<<grid_size,block_size>>>(d_v, d_g, d_h, k, psa, m, extremum);
 
     // Transfer data back to host memory
     cudaMemcpy(v, d_v, sizeof(size_t) * m, cudaMemcpyDeviceToHost);
@@ -80,4 +76,39 @@ std::vector<std::vector<size_t>> vHGW(std::vector<std::vector<size_t>> matrix, s
   }
 
   return matrix;
+}
+
+void vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extremum)(const size_t&, const size_t&))
+{
+  // http://www.cmm.mines-paristech.fr/~beucher/publi/HGWimproved.pdf - Algorithm 1
+
+  for (auto& v: matrix)
+  {
+    auto m = v.size();
+
+    auto psa = (k - (m - 1) % k) - 1;
+
+    std::vector<size_t> g(m);
+    std::vector<size_t> h(m);
+
+    for (size_t x = 0; x < m; x++)
+      g[x] = (x % k) == 0 ? *(v[x]) : extremum(g[x - 1], *(v[x]));
+
+    h[m - 1] = *(v[m - 1]);
+    for (size_t y = 1; y < m; y++)
+    {
+      size_t x = m - 1 - y;
+      h[x] = (x + 1) % k == 0 ? *(v[x]) : extremum(h[x + 1], *(v[x]));
+    }
+
+    for (size_t x = 0; x < m; x++)
+    {
+      if (2*x < k)
+        *(v[x]) = g[x + k/2];
+      else if (x + k/2 >= m)
+        *(v[x]) = x + k/2 < m + psa ? extremum(g[m - 1], h[x - k/2]) : h[x - k/2];
+      else
+        *(v[x]) = extremum(g[x + k/2], h[x - k/2]);
+    }
+  }
 }
