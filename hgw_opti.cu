@@ -43,7 +43,7 @@ void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
 	int h = std::ceil((float)height / bsize);
 
 	dim3 dimBlock(bsize, bsize);
-	dim3 dimGrid(1, h);
+	dim3 dimGrid(w, h);
 
 	printf("BEFORE\n");
 	print_cuda<<<dimGrid, dimBlock>>>(data_read, height, width);
