@@ -86,18 +86,12 @@ void cuda_vHGW(size_t* data_host, int height, int width, size_t k, bool	is_dilat
 	// Transfer data from host to device memory
 	cudaMemcpy(data_read, data_host, sizeof(size_t) * width * height, cudaMemcpyHostToDevice);
 
-	//int bsize = 1;
-	//int ww = std::ceil((float)width / bsize);
-	//int hh = std::ceil((float)height / bsize);
+	int bsize = 1;
 
 	// Executing kernel 
-	//dim3 dimBlock(bsize, bsize);
-	//dim3 dimGrid(w, h);
 
-	printf("BEFORE\n");
-	compute_vHGW<<<height, 1>>>(data_read, data_write, height, width, g, h, k, is_dilatation);
+	compute_vHGW<<<height, bsize>>>(data_read, data_write, height, width, g, h, k, is_dilatation);
 	cudaDeviceSynchronize();
-	printf("AFTER\n");
 
 	// Transfer data back to host memory
 	cudaMemcpy(data_host, data_write, sizeof(size_t) * width * height, cudaMemcpyDeviceToHost);
@@ -107,43 +101,4 @@ void cuda_vHGW(size_t* data_host, int height, int width, size_t k, bool	is_dilat
     cudaFree(data_write);
     cudaFree(h);
     cudaFree(g);
-}
-
-
-int main() {
-	size_t* data;
-	int height = 10;
-	int width  = 10;
-	bool is_dilatation = false;
-
-	data = (size_t*)malloc(sizeof(size_t) * height*width);
-
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			data[j + i * width] = (i * width) +j;
-		}
-	}
-
-
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			printf("%lu ", data[j+i*width]);
-		}
-		printf("\n");
-	}
-
-	size_t k = 5;
-
-	cuda_vHGW(data, height, width, k, is_dilatation);
-
-
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			printf("%lu ", data[j+i*width]);
-		}
-		printf("\n");
-	}
-
-	return 0;
-
 }
