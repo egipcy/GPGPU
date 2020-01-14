@@ -45,7 +45,7 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
       // Compute H
       int x_rev = m - x - 1;
       if (x_rev == m-1) {
-      	h_line[x_rev] = curr_line[x_rev]
+      	h_line[x_rev] = curr_line[x_rev];
       } else {
       	h_line[x] = (x_rev + 1) % k == 0 ? curr_line[x_rev] : max(h_line[x_rev + 1], curr_line[x_rev]);
       }
