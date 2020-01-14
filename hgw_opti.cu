@@ -12,7 +12,6 @@
 __global__ void print_cuda(size_t* data, int height, int width) {
 	int x = blockDim.x * blockIdx.x + threadIdx.x;
 	int y = blockDim.y * blockIdx.y + threadIdx.y;
-	printf("%i %i\n", x, y)
 	printf("%i, %i\n", x, y);
 	if (x >= width || y >= height) {
 		return;
@@ -38,6 +37,7 @@ void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
 
 	printf("BEFORE\n");
 	print_cuda<<<dimGrid, dimBlock>>>(data_read, height, width);
+	cudaDeviceSynchronize()
 	printf("AFTER\n");
 }
 
