@@ -1,4 +1,5 @@
 #include <iostream>
+#include <limits>
 
 #include "PGM.hh"
 #include "PGM.cc"
@@ -48,27 +49,77 @@ void vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extremum)
   }
 }
 
-void dilate(PGM& image, size_t k)
+void dilate_vHGW(PGM& image, size_t k)
 {
   vHGW(image.get_matrix(), k, max);
   vHGW(image.get_transpose_matrix(), k, max);
 }
 
-void erode(PGM& image, size_t k)
+void erode_vHGW(PGM& image, size_t k)
 {
   vHGW(image.get_matrix(), k, min);
   vHGW(image.get_transpose_matrix(), k, min);
 }
 
+void naive_approach(PGM& image, const std::vector<std::vector<bool>>& kernel, size_t(*extremum)(const size_t&, const size_t&))
+{
+  auto datas = image.get_datas();
+
+  size_t cst_extrem = 255 - extremum(255, 0);
+
+  for (size_t i = 0; i < image.get_width(); i++)
+    for (size_t j = 0; j < image.get_height(); j++)
+    {
+      size_t extrem = cst_extrem;
+
+      for (size_t k_i = 0; k_i < kernel.size(); k_i++)
+      {
+        long x_i = i + k_i - kernel.size() / 2;
+        if (x_i < 0 || x_i >= image.get_width())
+          break;
+
+        for (size_t k_j = 0; k_j < kernel[k_i].size(); k_j++)
+        {
+          if (!kernel[k_i][k_j])
+            break;
+
+          long x_j = j + k_j - kernel[k_i].size() / 2;
+          if (x_j < 0 || x_j >= image.get_height())
+            break;
+
+          extrem = extremum(image.get_datas()[x_i * image.get_height() + x_j], extrem);
+        }
+      }
+
+      datas[i * image.get_height() + j] = extrem;
+    }
+
+  image.get_datas() = datas;
+}
+
 int main()
 {
+  size_t k = 20;
+
   auto image = PGM("house.pgm");
-  dilate(image, 20);
-  image.write("house.dilated.pgm");
+  dilate_vHGW(image, k);
+  image.write("house.dilated.vHGW.pgm");
 
   image = PGM("house.pgm");
-  erode(image, 20);
-  image.write("house.eroded.pgm");
+  erode_vHGW(image, k);
+  image.write("house.eroded.vHGW.pgm");
+
+  std::vector<std::vector<bool>> kernel = std::vector<std::vector<bool>>(k);
+  for (size_t i = 0; i < kernel.size(); i++)
+    kernel[i] = std::vector<bool>(k, true);
+
+  image = PGM("house.pgm");
+  naive_approach(image, kernel, max);
+  image.write("house.dilated.naive.pgm");
+
+  image = PGM("house.pgm");
+  naive_approach(image, kernel, min);
+  image.write("house.eroded.naive.pgm");
 
   return 0;
 }
