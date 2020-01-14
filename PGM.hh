@@ -10,6 +10,9 @@ public:
 
   void write(const std::string& filename) const;
 
+  size_t get_width() const;
+  size_t get_height() const;
+  std::vector<size_t>& get_datas();
   std::vector<std::vector<size_t*>>& get_matrix();
   std::vector<std::vector<size_t*>>& get_transpose_matrix();
 
