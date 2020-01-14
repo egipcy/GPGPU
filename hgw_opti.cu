@@ -10,44 +10,35 @@
 #include <cuda_runtime.h>
 
 
-void cuda_vHGW_opti(size_t** data_host, int height, int width, int p) {
-	size_t** data;
+void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
+	size_t* data_read;
+	size_t* data_write;
 
-	cudaMalloc(&data, sizeof(size_t*) * height);
-	printf("PASSED\n");
-	for (int i = 0; i < height; i++) {
-		cudaMalloc(&(data[i]), sizeof(size_t) * width);
-		printf("PASSED For\n");
-		cudaMemcpy(data[i], data_host[i], sizeof(size_t) * width, cudaMemcpyHostToDevice);
-	}
-	printf("PASSED2\n");
-
-
-
-
+	cudaMalloc(&data_reqd, sizeof(size_t) * height * width);
+	cudaMalloc(&data_write, sizeof(size_t) * height * width);
+	cudaMemcpy(data_reqd, data_host, sizeof(size_t) * width * height, cudaMemcpyHostToDevice);
 }
 
 
 int main() {
-	size_t** data;
+	size_t* data;
 
 	int height = 10;
 	int width  = 10;
 	int p = 3;
 
-	data = (size_t**)malloc(sizeof(size_t*) * height);
+	data = (size_t*)malloc(sizeof(size_t) * height*width);
 
 	for (int i = 0; i < height; i++) {
-		data[i] = (size_t*)malloc(sizeof(size_t) * width);
 		for (int j = 0; j < width; j++) {
-			data[i][j] = (i * width) +j;
+			data[j + i * width] = (i * width) +j;
 		}
 	}
 
 
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
-			printf("%lu ", data[i][j]);
+			printf("%lu ", data[j+i*width]);
 		}
 		printf("\n");
 	}
