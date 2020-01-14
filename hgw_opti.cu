@@ -9,7 +9,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#define compare(a,b, v) v ? a>b?a:b : a<b?a:b;
+#define compare(a,b, v) v ? (a>b?a:b) : (a<b?a:b);
 
 
 __global__ void print_cuda(size_t* data, int height, int width) {
