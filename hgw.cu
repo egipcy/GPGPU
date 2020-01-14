@@ -2,7 +2,7 @@
 
 #define BLOCK_SIZE 256
 
-__global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&) {
+__global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&)) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
@@ -11,7 +11,7 @@ __global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremu
 
 }
 
-__global__ void compute_h(float* h, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&) {
+__global__ void compute_h(size_t* h, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&)) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   h[n - 1] = v[n - 1];
@@ -21,7 +21,7 @@ __global__ void compute_h(float* h, size_t* v, size_t k, int n, size_t(*extremum
   }
 }
 
-__global__ void compute_v(size_t* v, size_t* g, size_t* h, size_t k, auto psa, int n, size_t(*extremum)(const size_t&, const size_t&) {
+__global__ void compute_v(size_t* v, size_t* g, size_t* h, size_t k, size_t psa, int n, size_t(*extremum)(const size_t&, const size_t&)) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
@@ -49,9 +49,9 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
     std::vector<size_t> h(m);
 
     // Allocate device memory 
-    cudaMalloc((void**)&d_g, sizeof(size_t) * m);
-    cudaMalloc((void**)&d_h, sizeof(size_t) * m);
-    cudaMalloc((void**)&d_v, sizeof(size_t) * m);
+    cudaMalloc((size_t**)&d_g, sizeof(size_t) * m);
+    cudaMalloc((size_t**)&d_h, sizeof(size_t) * m);
+    cudaMalloc((size_t**)&d_v, sizeof(size_t) * m);
 
     // Transfer data from host to device memory
     cudaMemcpy(d_g, g, sizeof(size_t) * m, cudaMemcpyHostToDevice);
