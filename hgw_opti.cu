@@ -16,7 +16,7 @@ __global__ void print_cuda(size_t* data, int height, int width) {
 	if (x >= width || y >= height) {
 		return;
 	}
-	printf("%i, %i --> %lu\n", x, y, data[i+j*width]);
+	printf("%i, %i --> %lu\n", x, y, data[x+y*width]);
 }
 
 void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
