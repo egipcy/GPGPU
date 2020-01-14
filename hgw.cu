@@ -2,7 +2,7 @@
 
 #define BLOCK_SIZE 256
 
-__global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&)) {
+__global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremum)(size_t&, size_t&)) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
@@ -11,7 +11,7 @@ __global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremu
 
 }
 
-__global__ void compute_h(size_t* h, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&)) {
+__global__ void compute_h(size_t* h, size_t* v, size_t k, int n, size_t(*extremum)(size_t&, size_t&)) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   h[n - 1] = v[n - 1];
@@ -21,7 +21,7 @@ __global__ void compute_h(size_t* h, size_t* v, size_t k, int n, size_t(*extremu
   }
 }
 
-__global__ void compute_v(size_t* v, size_t* g, size_t* h, size_t k, size_t psa, int n, size_t(*extremum)(const size_t&, const size_t&)) {
+__global__ void compute_v(size_t* v, size_t* g, size_t* h, size_t k, size_t psa, int n, size_t(*extremum)(size_t&, size_t&)) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
