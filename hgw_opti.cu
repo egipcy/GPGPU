@@ -38,19 +38,18 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
 	size_t* v_line = data_write+index*width;
 
 
-	// Compute G
+	
 	for (int x = 0; x < m; x++) {
+	  // Compute G
       g_line[x] = (x % k) == 0 ? curr_line[x] : max(g_line[x - 1], curr_line[x]);
+      // Compute H
+      int x_rev = m - x - 1;
+      if (x_rev == m-1) {
+      	h_line[x_rev] = curr_line[x_rev]
+      } else {
+      	h_line[x] = (x_rev + 1) % k == 0 ? curr_line[x_rev] : max(h_line[x_rev + 1], curr_line[x_rev]);
+      }
 	}
-
-
-  	// Compute H
-  	h_line[m - 1] = curr_line[m - 1];
-    for (int y = 1; y < m; y++) {
-      size_t x = m - 1 - y;
-      h_line[x] = (x + 1) % k == 0 ? curr_line[x] : max(h_line[x + 1], curr_line[x]);
-    }
-
 
     // Compute new line 
     for (size_t x = 0; x < m; x++)
