@@ -9,8 +9,12 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#define max(a,b) a>b?a:b
-#define min(a,b) a<b?a:b
+
+__device__ size_t compare(size_t a, size_t b, bool is_dilatation) {
+
+	return is_dilatation ? (a < b ? a : b) : (a > b ? a : b);
+}
+
 
 
 __global__ void print_cuda(size_t* data, int height, int width) {
@@ -37,8 +41,6 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
 	size_t* g_line = g+index*width;
 	size_t* h_line = h+index*width;
 	size_t* v_line = data_write+index*width;
-
-	auto compare = is_dilatation ? max : min;
 	
 	for (int x = 0; x < m; x++) {
 	  // Compute G
