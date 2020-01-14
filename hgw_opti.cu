@@ -112,8 +112,6 @@ int main() {
 
 	data = (size_t*)malloc(sizeof(size_t) * height*width);
 
-	printf("%i\n", compare(5, 10, 0));
-
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 			data[j + i * width] = (i * width) +j;
