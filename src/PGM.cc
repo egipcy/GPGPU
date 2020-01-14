@@ -99,7 +99,7 @@ void PGM::write(const std::string& filename) const
   file << "P2" << std::endl;
   file << width_ << " " << height_ << std::endl;
 
-  int maximum = 0;
+  size_t maximum = 0;
   for (size_t i = 0; i < datas_.size(); i++)
     if (datas_[i] > maximum)
       maximum = datas_[i];
@@ -115,6 +115,21 @@ void PGM::write(const std::string& filename) const
   file.close();
 }
 
+size_t PGM::get_width() const
+{
+  return width_;
+}
+
+size_t PGM::get_height() const
+{
+  return height_;
+}
+
+std::vector<size_t>& PGM::get_datas()
+{
+  return datas_;
+}
+
 std::vector<std::vector<size_t*>>& PGM::get_matrix()
 {
   return matrix_;
@@ -124,4 +139,3 @@ std::vector<std::vector<size_t*>>& PGM::get_transpose_matrix()
 {
   return transpose_matrix_;
 }
-
