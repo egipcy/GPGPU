@@ -26,7 +26,7 @@ void cuda_vHGW_opti(size_t** data_host, int height, int width, int p) {
 }
 
 
-void main() {
+int main() {
 	size_t** data;
 
 	int height = 10;
@@ -36,7 +36,7 @@ void main() {
 	data = (size_t**)malloc(sizeof(size_t*) * height);
 
 	for (int i = 0; i < height; i++) {
-		data[i] = (size_t*)malloc(sizeof(size_t) * widht)
+		data[i] = (size_t*)malloc(sizeof(size_t) * widht);
 		for (int j = 0; j < widht; j++) {
 			data[i][j] = (i * width) +j;
 		}
@@ -47,9 +47,10 @@ void main() {
 		for (int j = 0; j < widht; j++) {
 			printf("%lu ", data[i][j]);
 		}
-		print("\n");
+		printf("\n");
 	}
 
 	cuda_vHGW_opti(data, height, widht, p);
+	return 0;
 
 }
