@@ -55,7 +55,7 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
     for (size_t y = 1; y < m; y++)
     {
       size_t x = m - 1 - y;
-      h_line[x] = (x + 1) % k == 0 ? curr_line[x] : extremum(h_line[x + 1], v_line[x], is_dilatation);
+      h_line[x] = (x + 1) % k == 0 ? curr_line[x] : compare(h_line[x + 1], v_line[x], is_dilatation);
     }
 
     // Compute new line 
