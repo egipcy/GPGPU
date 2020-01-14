@@ -61,7 +61,7 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
     for (size_t x = 0; x < m; x++)
     {
     	auto div2 = k / 2;
-    	if (x - div2 < 0)
+    	if (x  < div2)
     		v_line[x] = g_line[x + div2];
     	else if (x + div2 >= m)
     		v_line[x] = x + div2 < m + psa ? compare(g_line[m - 1], h_line[x - (div2)], is_dilatation) : h_line[x - (div2)];
