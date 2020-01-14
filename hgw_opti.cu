@@ -19,6 +19,17 @@ __global__ void print_cuda(size_t* data, int height, int width) {
 	printf("%i, %i --> %lu\n", x, y, data[x+y*width]);
 }
 
+
+__global__ void print_cuda(size_t* data, int height, int width) {
+	int x = blockDim.x * blockIdx.x + threadIdx.x;
+	int y = blockDim.y * blockIdx.y + threadIdx.y;
+
+	if (x >= width || y >= height) {
+		return;
+	}
+	printf("%i, %i --> %lu\n", x, y, data[x+y*width]);
+}
+
 void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
 	size_t* data_read;
 	size_t* data_write;
@@ -32,7 +43,7 @@ void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
 	int h = std::ceil((float)height / bsize);
 
 	dim3 dimBlock(bsize, bsize);
-	dim3 dimGrid(w, h);
+	dim3 dimGrid(1, h);
 
 	printf("BEFORE\n");
 	print_cuda<<<dimGrid, dimBlock>>>(data_read, height, width);
