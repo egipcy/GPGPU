@@ -65,7 +65,7 @@ void naive_approach(PGM& image, const std::vector<std::vector<bool>>& kernel, si
 {
   auto datas = image.get_datas();
 
-  size_t cst_extrem = 255 - extremum(255, 0);
+  size_t cst_extrem = std::numeric_limits<size_t>::max() - extremum(std::numeric_limits<size_t>::max(), 0);
 
   for (size_t i = 0; i < image.get_width(); i++)
     for (size_t j = 0; j < image.get_height(); j++)
@@ -91,7 +91,8 @@ void naive_approach(PGM& image, const std::vector<std::vector<bool>>& kernel, si
         }
       }
 
-      datas[i * image.get_height() + j] = extrem;
+      if (extrem != cst_extrem)
+        datas[i * image.get_height() + j] = extrem;
     }
 
   image.get_datas() = datas;
