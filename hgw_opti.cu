@@ -53,11 +53,11 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
     for (size_t x = 0; x < m; x++)
     {
       if (2*x < k)
-        *(v_line[x]) = g[x + k/2];
+        v_line[x] = g_line[x + k/2];
       else if (x + k/2 >= m)
-        *(v_line[x]) = x + k/2 < m + psa ? std::max(g_line[m - 1], h_line[x - k/2]) : h_line[x - k/2];
+        v_line[x] = x + k/2 < m + psa ? std::max(g_line[m - 1], h_line[x - k/2]) : h_line[x - k/2];
       else
-        *(v_line[x]) = std::max(g_line[x + k/2], h_line[x - k/2]);
+        v_line[x] = std::max(g_line[x + k/2], h_line[x - k/2]);
     }
 
 }
@@ -77,9 +77,9 @@ void cuda_vHGW(size_t* data_host, int height, int width, size_t k) {
 	// Transfer data from host to device memory
 	cudaMemcpy(data_read, data_host, sizeof(size_t) * width * height, cudaMemcpyHostToDevice);
 
-	int bsize = 1;
-	int w = std::ceil((float)width / bsize);
-	int h = std::ceil((float)height / bsize);
+	//int bsize = 1;
+	//int ww = std::ceil((float)width / bsize);
+	//int hh = std::ceil((float)height / bsize);
 
 	// Executing kernel 
 	//dim3 dimBlock(bsize, bsize);
@@ -123,7 +123,9 @@ int main() {
 		printf("\n");
 	}
 
-	cuda_vHGW_opti(data, height, width, p);
+	size_t k = 3;
+
+	cuda_vHGW_opti(data, height, width, k);
 	return 0;
 
 }
