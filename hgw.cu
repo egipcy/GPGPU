@@ -2,7 +2,7 @@
 
 #define BLOCK_SIZE 256
 
-__global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremum)(size_t&, size_t&)) {
+__global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&)) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
@@ -11,7 +11,7 @@ __global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremu
 
 }
 
-__global__ void compute_h(size_t* h, size_t* v, size_t k, int n, size_t(*extremum)(size_t&, size_t&)) {
+__global__ void compute_h(size_t* h, size_t* v, size_t k, int n, size_t(*extremum)(const size_t&, const size_t&)) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   h[n - 1] = v[n - 1];
@@ -21,7 +21,7 @@ __global__ void compute_h(size_t* h, size_t* v, size_t k, int n, size_t(*extremu
   }
 }
 
-__global__ void compute_v(size_t* v, size_t* g, size_t* h, size_t k, size_t psa, int n, size_t(*extremum)(size_t&, size_t&)) {
+__global__ void compute_v(size_t* v, size_t* g, size_t* h, size_t k, size_t psa, int n, size_t(*extremum)(const size_t&, const size_t&)) {
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
@@ -34,7 +34,7 @@ __global__ void compute_v(size_t* v, size_t* g, size_t* h, size_t k, size_t psa,
   }
 }
 
-void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extremum)(size_t&, size_t&))
+void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extremum)(const size_t&, const size_t&))
 {
   // http://www.cmm.mines-paristech.fr/~beucher/publi/HGWimproved.pdf - Algorithm 1
 
@@ -43,7 +43,7 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
     auto m = v.size();
     auto psa = (k - (m - 1) % k) - 1;
 
-    size_t *d_g, *d_h, *d_v; 
+    size_t &d_g, &d_h, &d_v; 
 
     std::vector<size_t> g(m);
     std::vector<size_t> h(m);

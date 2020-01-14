@@ -4,12 +4,12 @@
 #include "PGM.cc"
 #include "hgw.hh"
 
-size_t min(size_t& a, size_t& b)
+size_t min(const size_t& a, const size_t& b)
 {
   return a < b ? a : b;
 }
 
-size_t max(size_t& a, size_t& b)
+size_t max(const size_t& a, const size_t& b)
 {
   return a > b ? a : b;
 }
