@@ -38,7 +38,7 @@ void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
 	cudaMalloc(&data_write, sizeof(size_t) * height * width);
 	cudaMemcpy(data_read, data_host, sizeof(size_t) * width * height, cudaMemcpyHostToDevice);
 
-	int bsize = 3;
+	int bsize = 5;
 	int w = std::ceil((float)width / bsize);
 	int h = std::ceil((float)height / bsize);
 
