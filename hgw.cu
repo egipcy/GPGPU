@@ -1,5 +1,4 @@
-
-#include hgw.hh
+#include "hgw.hh"
 
 #define BLOCK_SIZE 256
 
@@ -7,7 +6,7 @@ __global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremu
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
-    g[tid] = (tid % k) == 0 ? v[x] : extremum(g[tid - 1], v[tid]);
+    g[tid] = (tid % k) == 0 ? v[tid] : extremum(g[tid - 1], v[tid]);
   }
 
 }
@@ -42,8 +41,9 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
   for (auto& v: matrix)
   {
     auto m = v.size();
-
     auto psa = (k - (m - 1) % k) - 1;
+
+    size_t *d_g, *d_h, *d_v; 
 
     std::vector<size_t> g(m);
     std::vector<size_t> h(m);
