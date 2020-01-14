@@ -9,7 +9,7 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-#define max(a,b) a>b?a:b
+#define compare(a,b, v) v ? a>b?a:b : a<b?a:b;
 
 
 __global__ void print_cuda(size_t* data, int height, int width) {
@@ -23,7 +23,7 @@ __global__ void print_cuda(size_t* data, int height, int width) {
 }
 
 
-__global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, int width, size_t* g, size_t* h, size_t k) {
+__global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, int width, size_t* g, size_t* h, size_t k, bool is_dilatation) {
 	int index = blockDim.x * blockIdx.x + threadIdx.x;
 
 	auto m = width;
@@ -41,13 +41,13 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
 	
 	for (int x = 0; x < m; x++) {
 	  // Compute G
-      g_line[x] = (x % k) == 0 ? curr_line[x] : max(g_line[x - 1], curr_line[x]);
+      g_line[x] = (x % k) == 0 ? curr_line[x] : compare(g_line[x - 1], curr_line[x], is_dilatation);
       // Compute H
       int x_rev = m - x - 1;
       if (x_rev == m-1) {
       	h_line[x_rev] = curr_line[x_rev];
       } else {
-      	h_line[x] = (x_rev + 1) % k == 0 ? curr_line[x_rev] : max(h_line[x_rev + 1], curr_line[x_rev]);
+      	h_line[x] = (x_rev + 1) % k == 0 ? curr_line[x_rev] : compare(h_line[x_rev + 1], curr_line[x_rev], is_dilatation);
       }
 	}
 
@@ -57,14 +57,14 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
       if (2*x < k)
         v_line[x] = g_line[x + k/2];
       else if (x + k/2 >= m)
-        v_line[x] = x + k/2 < m + psa ? max(g_line[m - 1], h_line[x - k/2]) : h_line[x - k/2];
+        v_line[x] = x + k/2 < m + psa ? compare(g_line[m - 1], h_line[x - k/2], is_dilatation) : h_line[x - k/2];
       else
-        v_line[x] = max(g_line[x + k/2], h_line[x - k/2]);
+        v_line[x] = compare(g_line[x + k/2], h_line[x - k/2], is_dilatation);
     }
 
 }
 
-void cuda_vHGW(size_t* data_host, int height, int width, size_t k) {
+void cuda_vHGW(size_t* data_host, int height, int width, size_t k, bool	is_dilatation) {
 	size_t* data_read;
 	size_t* data_write;
 	size_t* h;
@@ -88,7 +88,7 @@ void cuda_vHGW(size_t* data_host, int height, int width, size_t k) {
 	//dim3 dimGrid(w, h);
 
 	printf("BEFORE\n");
-	compute_vHGW<<<height, 1>>>(data_read, data_write, height, width, g, h, k);
+	compute_vHGW<<<height, 1>>>(data_read, data_write, height, width, g, h, k, is_dilatation);
 	cudaDeviceSynchronize();
 	printf("AFTER\n");
 
@@ -105,9 +105,9 @@ void cuda_vHGW(size_t* data_host, int height, int width, size_t k) {
 
 int main() {
 	size_t* data;
-
 	int height = 10;
 	int width  = 10;
+	bool is_dilatation = true;
 
 	data = (size_t*)malloc(sizeof(size_t) * height*width);
 
@@ -127,7 +127,7 @@ int main() {
 
 	size_t k = 3;
 
-	cuda_vHGW(data, height, width, k);
+	cuda_vHGW(data, height, width, k, is_dilatation);
 
 
 	for (int i = 0; i < height; i++) {
@@ -136,7 +136,7 @@ int main() {
 		}
 		printf("\n");
 	}
-	
+
 	return 0;
 
 }
