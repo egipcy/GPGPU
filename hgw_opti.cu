@@ -128,7 +128,7 @@ int main() {
 
 	size_t k = 3;
 
-	cuda_vHGW_opti(data, height, width, k);
+	cuda_vHGW(data, height, width, k);
 	return 0;
 
 }
