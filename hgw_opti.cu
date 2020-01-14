@@ -114,7 +114,7 @@ int main() {
 	size_t* data;
 	int height = 10;
 	int width  = 10;
-	bool is_dilatation = true;
+	bool is_dilatation = false;
 
 	data = (size_t*)malloc(sizeof(size_t) * height*width);
 
