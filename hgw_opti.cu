@@ -38,7 +38,7 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
 	size_t* h_line = h+index*width;
 	size_t* v_line = data_write+index*width;
 
-	auto compare = is_dilatation ? max : min
+	auto compare = is_dilatation ? max : min;
 	
 	for (int x = 0; x < m; x++) {
 	  // Compute G
