@@ -9,6 +9,16 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+__global__ print(size_t* data, int height, int width) {
+	int x = blockDim.x * blockIdx.x + threadIdx.x;
+	int y = blockDim.y * blockIdx.y + threadIdx.y;
+
+	if (x >= width || y >= height) {
+		return;
+	}
+
+	printf("%i, %i, %lu\n", x, y, data[x+y*width]);
+}
 
 void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
 	size_t* data_read;
@@ -17,6 +27,15 @@ void cuda_vHGW_opti(size_t* data_host, int height, int width, int p) {
 	cudaMalloc(&data_read, sizeof(size_t) * height * width);
 	cudaMalloc(&data_write, sizeof(size_t) * height * width);
 	cudaMemcpy(data_read, data_host, sizeof(size_t) * width * height, cudaMemcpyHostToDevice);
+
+	int bsize = 32;
+	int w = std::ceil((float)width / bsize);
+	int h = std::ceil((float)height / bsize);
+
+	dim3 dimBlock(bsize, bsize);
+	dim3 dimGrid(w, h);
+
+	print<<<dimGrid, dimBlock>>>(data_read, height, width);
 }
 
 
