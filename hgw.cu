@@ -74,8 +74,6 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
     cudaFree(d_h);
     cudaFree(d_v);
   }
-
-  return matrix;
 }
 
 void vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extremum)(const size_t&, const size_t&))
