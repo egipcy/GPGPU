@@ -6,7 +6,7 @@ __global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremu
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
-    g[tid] = (tid % k) == 0 ? v[tid] : extremum(g[tid - 1], v[tid]);
+    g[tid] = (tid % k) == 0 ? *(v[tid]) : extremum(g[tid - 1], *(v[tid]));
   }
 
 }
@@ -51,12 +51,12 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
     // Allocate device memory 
     cudaMalloc((void**)&d_g, sizeof(size_t) * m);
     cudaMalloc((void**)&d_h, sizeof(size_t) * m);
-    cudaMalloc((void**)&d_v, sizeof(size_t) * m);
+    cudaMalloc((void**)&d_v, sizeof(size_t*) * m);
 
     // Transfer data from host to device memory
     cudaMemcpy(d_g, &(g[0]), sizeof(size_t) * m, cudaMemcpyHostToDevice);
     cudaMemcpy(d_h, &(h[0]), sizeof(size_t) * m, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_v, &(v[0]), sizeof(size_t) * m, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_v, &(v[0]), sizeof(size_t*) * m, cudaMemcpyHostToDevice);
 
     // Executing kernel 
     int block_size = BLOCK_SIZE;
