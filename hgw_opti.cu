@@ -12,10 +12,11 @@
 
 __device__ size_t compare(size_t a, size_t b, bool is_dilatation) {
 
-  if (is_dilatation) {
+  if (is_dilatation)
     return a > b ? a : b;
 
   return a < b ? a : b;
+
 }
 
 
