@@ -16,7 +16,6 @@ __device__ size_t compare(size_t a, size_t b, bool is_dilatation) {
     return a > b ? a : b;
 
   return a < b ? a : b;
-
 }
 
 
@@ -114,7 +113,7 @@ int main() {
 	size_t* data;
 	int height = 10;
 	int width  = 10;
-	bool is_dilatation = false;
+	bool is_dilatation = true;
 
 	data = (size_t*)malloc(sizeof(size_t) * height*width);
 
