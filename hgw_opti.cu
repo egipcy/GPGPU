@@ -33,7 +33,7 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
 	size_t* g_line = g+index*width;
 	size_t* h_line = h+index*width;
 	size_t* v_line = data_write+index*width;
-/*
+
 
 	// Compute G
 	for (int x = 0; x < m; x++) {
@@ -58,7 +58,7 @@ __global__ void compute_vHGW(size_t* data_read, size_t* data_write, int height, 
         *(v_line[x]) = x + k/2 < m + psa ? std::max(g_line[m - 1], h_line[x - k/2]) : h_line[x - k/2];
       else
         *(v_line[x]) = std::max(g_line[x + k/2], h_line[x - k/2]);
-    }*/
+    }
 
 }
 
