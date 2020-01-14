@@ -62,9 +62,9 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
     int block_size = BLOCK_SIZE;
     int grid_size = ((m + block_size) / block_size);
 
-    compute_g<<<grid_size,block_size>>>(&d_g, &d_v, k, m, extremum);
-    compute_h<<<grid_size,block_size>>>(&d_h, &d_v, k, m, extremum);
-    compute_v<<<grid_size,block_size>>>(&d_v, &d_g, &d_h, k, psa, m, extremum);
+    compute_g<<<grid_size,block_size>>>(d_g, d_v, k, m, extremum);
+    compute_h<<<grid_size,block_size>>>(d_h, d_v, k, m, extremum);
+    compute_v<<<grid_size,block_size>>>(d_v, d_g, d_h, k, psa, m, extremum);
 
     // Transfer data back to host memory
     cudaMemcpy(&(v[0]), d_v, sizeof(size_t) * m, cudaMemcpyDeviceToHost);
