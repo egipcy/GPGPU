@@ -132,7 +132,7 @@ int main() {
 		printf("\n");
 	}
 
-	size_t k = 3;
+	size_t k = 5;
 
 	cuda_vHGW(data, height, width, k, is_dilatation);
 
