@@ -14,7 +14,7 @@ __global__ void compute_g(size_t* g, size_t* v, size_t k, int n, size_t(*extremu
   auto tid = blockIdx.x * blockDim.x + threadIdx.x;
 
   if (tid < n) {
-    g[tid] = (tid % k) == 0 ? *(v[tid]) : extremum(g[tid - 1], *(v[tid]));
+    g[tid] = (tid % k) == 0 ? v[tid] : extremum(g[tid - 1], v[tid]);
   }
 
 }
@@ -65,13 +65,13 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
     cudaMemcpy(d_g, g.data(), sizeof(size_t) * m, cudaMemcpyHostToDevice);
     cudaMemcpy(d_h, h.data(), sizeof(size_t) * m, cudaMemcpyHostToDevice);
     cudaMemcpy(d_v, v.data(), sizeof(size_t*) * m, cudaMemcpyHostToDevice);
-
-    example(d_g, m);
-
+/*
 
     // Executing kernel 
     int block_size = BLOCK_SIZE;
     int grid_size = ((m + block_size) / block_size);
+
+    example<<<grid_size, block_size>>>>(d_g, m);
 
     compute_g<<<grid_size,block_size>>>(d_g, d_v, k, m, extremum);
     compute_h<<<grid_size,block_size>>>(d_h, d_v, k, m, extremum);
@@ -84,6 +84,7 @@ void cuda_vHGW(std::vector<std::vector<size_t*>>& matrix, size_t k, size_t(*extr
     cudaFree(d_g);
     cudaFree(d_h);
     cudaFree(d_v);
+    */
   }
 }
 
